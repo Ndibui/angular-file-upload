@@ -1,0 +1,34 @@
+<div class="file-upload-root mat-app-background mat-typography">
+  <div class="file-upload-content">
+    <div class="drag-zone" fxFlex=20>
+      <div class="drag-zone-content" appFileDropZone (dropped)="onFilesAdded($event)" [isDisabled]="disableUpload" [maxFiles]="maxFiles" [filesToUpload]="remainingFiles" (errorMsg)="handleErrorMsg($event, true)">
+        <span class="drag-label">drag to upload</span>
+      </div>
+      <div class="drag-zone-footer" *ngIf="!disableUpload">
+        <input type="file" #file style="display: none" (change)="onFilesAdded()" [multiple]="allowMultiple" />
+        <button mat-raised-button color="primary" (click)="addFiles()">Upload</button>
+      </div>
+    </div>
+    <div class="files" fxFlex=80>
+      <div class="error-msg" flexFill *ngFor="let errorMsg of dragdropErrorMsgs">
+        {{ errorMsg }}
+      </div>
+      <div class="file" flexFill *ngFor="let file of uploadedFiles$ | async">
+        <div fxFlexFill>
+          <mat-icon class="file-icon" aria-label="File icon" svgIcon="file-pdf"></mat-icon>
+          <div class="file-name-and-progress">
+            <span class="file-name">{{file.name}}</span>
+            <div class="file-upload-progress" *ngIf="file.uploading">
+              <mat-progress-bar color="success" mode="determinate" [value]="file.progress"></mat-progress-bar>
+              <mat-hint *ngIf="file.uploading || file.uploadSuccessful">{{file.progress}} %</mat-hint>
+            </div>
+          </div>
+          <button mat-icon-button class="remove-file-btn" [class.disabled]="file.uploading || !file.uploadSuccessful" [disabled]="file.uploading || !file.uploadSuccessful"
+            (click)=removeUploadedFile(file.id)>
+            <mat-icon aria-label="Remove this" class="remove-file" svgIcon="cancel"></mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

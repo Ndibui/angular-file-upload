@@ -1,0 +1,106 @@
+@import '~@angular/material/prebuilt-themes/deeppurple-amber';
+$grey: #999999;
+$light-grey: #D8D8D8;
+$lighter-grey:#eeeeee;
+$error-color: #CB001D;
+$help-text-color: #666666;
+
+.file-upload-root{
+    margin: 0 15% auto;
+    padding: 10px;
+    .file-upload-content{
+        .drag-zone{
+            margin-right: 10px;
+            .drag-zone-content{
+                height: 220px;
+                line-height: 220px;
+                border-radius: 10px;
+                &:not(.drag-zone-active):not(.drag-zone-disabled){
+                    background-color: $lighter-grey;
+                    border: 2px dashed $grey;
+                }
+                .drag-label{
+                    pointer-events: none;
+                    font-size: 12px;
+                    text-transform: uppercase;
+                    color: $grey;
+                    font-weight: 600;
+                    text-align: center;
+                    display: block;
+                    border-radius: 10px;
+                }
+            }
+            .drag-zone-footer{
+                text-align: center;
+                margin: 20px 0;
+            }
+        }
+        .files{
+            margin-right: 30px;
+            border-top: 1px solid $light-grey;
+            .error-msg{
+                padding: 10px 0 10px 5px;
+                font-size: 14px;
+                color: $error-color;
+            }
+            .file{
+                &:not(:last-child){
+                    border-bottom: 1px solid $light-grey;
+                }
+                padding: 10px 0 10px 5px;
+                .file-icon{
+                    vertical-align: middle;
+                    color: $help-text-color;
+                }
+                .file-name-and-progress{
+                    display: inline-block;
+                    width: calc(100% - 48px);
+                    vertical-align: top;
+                    .file-name{
+                        vertical-align: middle;
+                        line-height: 25px;
+                    }
+                    .file-upload-progress{
+                        margin-top: 10px;
+                        mat-hint {
+                            font-size: 14px;
+                        }
+                    }
+                }
+                .remove-file-btn{
+                    width: 24px;
+                    height: 24px;
+                    line-height: 24px;
+                    float: right;
+                    .remove-file{
+                        font-size: 16px;
+                        font-weight: 600;
+                        color: red;
+                        vertical-align: baseline;
+                    }
+                    &.disabled {
+                        .remove-file {
+                            color: $light-grey;
+                        }
+                    }
+                }
+            }
+        }
+    }                    
+}
+
+:host ::ng-deep .drag-zone-active{
+    background-color: #d4ebff;
+    border: 2px dashed #64B5F6;
+    & > .drag-label{
+        visibility: hidden;
+    }
+}
+
+:host ::ng-deep .drag-zone-disabled{
+    background-color: #f7f7f7;
+    border: 2px dashed #d6d5d5;
+    & > .drag-label{
+        opacity: 0.5;
+    }
+}

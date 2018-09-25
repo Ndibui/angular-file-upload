@@ -1,62 +1,62 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpRequest, HttpEventType, HttpResponse } from '@angular/common/http';
-import { Subject, Observable } from 'rxjs';
+import { HttpClient, HttpEventType, HttpRequest, HttpResponse } from '@angular/common/http';
+import { FileUpload } from '../models/file-upload/file-upload';
+import { Observable, BehaviorSubject, combineLatest, of } from 'rxjs';
+import { skip } from 'rxjs/operators';
+import { FileUploadPayload, FilePayload } from '../models/file-upload/file-upload-payload';
+import { RemoveFilePayload } from '../actions/file-upload.actions';
 
 const url = 'http://localhost:8000/upload';
 
-export interface Progress {
-  progress: Observable<number>;
-}
-
-export interface UploadProgress {
-  [key: string]: Progress;
-}
-
-@Injectable({
-  providedIn: 'root'
-})
-
+@Injectable()
 export class UploadService {
-  constructor(private http: HttpClient) { }
+    constructor(
+        private readonly http: HttpClient
+      ) { }
 
-  public upload(files: Set<File>): UploadProgress {
-    const status = {};
-    files.forEach(file => {
-      // create a new multipart-form for every file
-      const formData: FormData = new FormData();
-      formData.append('file', file, file.name);
+      uploadFile(payload: FilePayload): Observable<FileUpload> {
+        const result = new BehaviorSubject<FileUpload>(new FileUpload());
+        const formData: FormData = new FormData();
+        formData.append('id', payload.fileId);
+        formData.append('file', payload.file, payload.name);
+        formData.append('name', payload.name);
+        formData.append('overWrite', payload.overWrite.toString());
 
-      // create a http-post request and pass the form
-      // tell it to report the upload progress
-      const req = new HttpRequest('POST', url, formData, {
-        reportProgress: true
-      });
+        const req = new HttpRequest('POST', url, formData, {
+          reportProgress: true
+        });
 
-      // progress-subject for every file
-      const progress = new Subject<number>();
+        const uploadProgress = new FileUpload({ id: payload.fileId, name: payload.name, overwriteExisting: payload.overWrite });
+        this.http.request(req).subscribe(event => {
+          if (event.type === HttpEventType.UploadProgress) {
+            const percentDone = Math.round(100 * event.loaded / event.total);
+            result.next(
+              new FileUpload({
+                ...uploadProgress,
+                progress: percentDone,
+                uploading: percentDone === 100 ? false : true,
+                uploadSuccessful: percentDone === 100 ? true : false
+              }));
+          } else if (event instanceof HttpResponse) {
+            result.complete();
+          }
+        });
+        return result.asObservable().pipe(skip(1));
+      }
 
-      // send request and subscribe for progress-updates
-      this.http.request(req).subscribe(event => {
-        if (event.type === HttpEventType.UploadProgress) {
-          // calculate progress percentage
-          const percentDone = Math.round(100 * event.loaded / event.total);
+      uploadFiles(files: FileUploadPayload): Observable<FileUpload[]> {
+        const result = new BehaviorSubject<FileUpload[]>([new FileUpload()]);
+        const arrFiles = files.payload.filter(file => !file.skip);
+        const observables = arrFiles.map(
+          file => this.uploadFile(file)
+        );
+        combineLatest(observables).subscribe(val => {
+          result.next(val);
+        });
+        return result.asObservable().pipe(skip(1));
+      }
 
-          // update progress
-          progress.next(percentDone);
-        } else if (event instanceof HttpResponse) {
-          // Close the progress-stream if we get an answer form the API
-          // The upload is complete
-          progress.complete();
-        }
-      });
-
-      // Save every progress-observable in a map of all observables
-      status[file.name] = {
-        progress: progress.asObservable()
-      };
-    });
-    console.log(status);
-    // return the map of progress.observables
-    return status;
-  }
+      removeFile(data: RemoveFilePayload): Observable<RemoveFilePayload> {
+        return of(data);
+      }
 }

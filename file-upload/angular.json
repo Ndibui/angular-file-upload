@@ -123,5 +123,13 @@
       }
     }
   },
-  "defaultProject": "file-upload"
+  "defaultProject": "file-upload",
+  "schematics": {
+    "@schematics/angular:component": {
+      "styleext": "scss"
+    }
+  },
+  "cli": {
+    "defaultCollection": "@ngrx/schematics"
+  }
 }

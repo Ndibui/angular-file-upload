@@ -4,7 +4,7 @@ A File Upload Component in Angular using **@ngrx/store** and **@ngrx/effects**
 ![GitHub Logo](/file-upload/images/file-upload.png)
 
 ## Features
-* Progressbar for showing upload progress
+* Progressbar for upload progress
 * Single/Multiple file upload support
 * Handling duplicate files
 * Drag/Drop support

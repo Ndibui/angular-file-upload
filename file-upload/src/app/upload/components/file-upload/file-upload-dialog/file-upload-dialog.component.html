@@ -1,0 +1,34 @@
+<div class="file-dialog-root mat-typography">
+  <h1 mat-dialog-title>Duplicate file name{{ hasMultiple ? "s" : "" }}</h1>
+
+  <div *ngIf="!hasMultiple">
+    <div mat-dialog-content *ngFor="let file of data.payload">
+      <p>A file named <b>{{ file.fileName }}</b> already exists.</p>
+    </div>
+    <div mat-dialog-actions class="float-right">
+      <button class="btn exit-button" mat-button (click)="selectedAction(dialogActionsEnum.CancelUpload)">Cancel Upload</button>
+      <button class="btn action-button" mat-raised-button (click)="selectedAction(dialogActionsEnum.Replace)">Replace</button>
+      <button class="btn action-button" mat-raised-button (click)="selectedAction(dialogActionsEnum.KeepBoth)">Keep Both</button>
+    </div>
+  </div>
+
+  <div *ngIf="hasMultiple" fxFlexFill>
+    <div mat-dialog-content>
+      <div fxFlexFill>
+        <p>Files with the following names already exist.</p>
+      </div>
+      <div class="file-list" *ngFor="let file of data.payload">
+        <div fxFlex=60><b>{{ file.fileName }}</b></div>
+        <div fxFlex=40>
+          <mat-radio-group [(ngModel)]="file.dialogAction" fxLayout="row" fxLayoutAlign="space-around center">
+            <mat-radio-button *ngFor="let action of dialogActions" [value]="dialogActionsEnum[action]">{{dialogActionsEnum[action]}}</mat-radio-button>
+          </mat-radio-group>
+        </div>
+      </div>
+    </div>
+    <div mat-dialog-actions class="float-right">
+      <button class="btn action-button" mat-raised-button (click)="continue()">Continue</button>
+    </div>
+  </div>
+
+</div>
